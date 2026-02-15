@@ -15,7 +15,7 @@ class User(Base):
     password = Column(String)
     name = Column(String)
     email = Column(String, unique=True)
-    active = Column(Boolean, default="Y")
+    active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
     update_at = Column(DateTime, default=datetime.now)
 
