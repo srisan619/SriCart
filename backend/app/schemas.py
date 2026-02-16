@@ -11,6 +11,15 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+class RoleCreate(BaseModel):
+    name: str
+
+class RoleResponse(BaseModel):
+    id: int
+    name: str
+    class Config:
+        from_attributes = True
+
 class UserResponse(BaseModel):
     id: int
     username: str
@@ -18,6 +27,7 @@ class UserResponse(BaseModel):
     name: str
     active: bool
     created_at: datetime
+    roles: list[RoleResponse]
 
     class Config:
         from_attributes = True
