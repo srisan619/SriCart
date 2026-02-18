@@ -27,6 +27,7 @@ class UserResponse(BaseModel):
     name: str
     active: bool
     created_at: datetime
+    update_at: datetime
     roles: list[RoleResponse]
 
     class Config:

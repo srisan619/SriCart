@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 # from .database import engine, Base
 from . import models, schemas, crud
@@ -14,32 +15,58 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if existing_user:
         raise HTTPException(status_code=400, detail="username already exists")
     
-    return crud.create_user(db, user)
+    new_user = crud.create_user(db, user)
+
+    default_role = crud.get_role_by_name(db, "user")
+    crud.assign_role_to_user(db, new_user, default_role)
+
+    return new_user
 
 @app.post("/login", response_model=schemas.Token)
-def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_username(db, user.username)
-    if not db_user or not verify_password(user.password, db_user.password):
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_username(db, form_data.username)
+    if not db_user or not verify_password(form_data.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+
     token = create_access_token({"sub": db_user.username})
 
-    return{
+    return {
         "access_token": token,
         "token_type": "bearer"
     }
+
+@app.get("/admin-only")
+def admin_data(current_user=Depends(require_roles(["admin"]))):
+    return {"message": "Welcome Admin"}
+
+@app.get("/user-dashboard")
+def user_data(current_user=Depends(require_roles(["User", "admin"]))):
+    return {"message": "User Access Granted"}
+
 
 @app.get("/users", response_model=list[schemas.UserResponse])
 def list_users(db: Session=Depends(get_db)):
     return crud.get_all_users(db)
 
 @app.post("/roles", response_model=schemas.RoleResponse)
-def create_role(role: schemas.RoleCreate, db: Session = Depends(get_db), current_user=Depends(require_roles(["admin"]))):
+def create_role(role: schemas.RoleCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    # allow creating roles when no admin user exists (bootstrap). Otherwise require admin.
+    admin_user = db.query(models.User).join(models.User.roles).filter(models.Role.name == "admin").first()
+    print(current_user)
+    if admin_user:
+        # subsequent role creation requires admin
+        if not current_user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+
+        # reuse require_roles to check admin membership by calling the checker with the resolved user
+        admin_checker = require_roles(["admin"])
+        admin_checker(current_user)
+
     existing_role = db.query(models.Role).filter(models.Role.name == role.name).first()
 
     if existing_role:
         raise HTTPException(status_code=400, detail="Role already exists")
-    
+
     return crud.create_role(db, role.name)
 
 @app.get("/roles", response_model=list[schemas.RoleResponse])

@@ -34,6 +34,9 @@ def get_all_roles(db):
 def get_role_by_id(db, role_id: str):
     return db.query(Role).filter(Role.id==role_id).first()
 
+def get_role_by_name(db, name: str):
+    return db.query(Role).filter(Role.name == name).first()
+
 def update_role(db, role_id: int, new_name: str):
     role = get_role_by_id(db, role_id)
     if role:

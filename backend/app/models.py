@@ -28,4 +28,4 @@ class User(Base):
     update_at = Column(DateTime, default=datetime.now)
 
     # role_id = Column(Integer, ForeignKey("roles.id"))
-    role = relationship("Role", secondary=user_roles, backref="users")
+    roles = relationship("Role", secondary=user_roles, backref="users")

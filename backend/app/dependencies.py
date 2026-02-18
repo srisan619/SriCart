@@ -15,26 +15,33 @@ def get_db():
     finally:
         db.close()
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    if not token:
+        return None
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
+        print(f"Token decoded for user: {username}")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
-    
+
     user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
-    
+
     return user
 
-def require_roles(required_roles: list[str]):
-    def role_checker(current_user: User=Depends(get_current_user)):
-        user_roles = [ role.name for role in current_user.roles]
-
+def require_roles(require_roles: list[str]):
+    def role_checker(current_user: User = Depends(get_current_user)):
+        if not current_user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        
+        user_roles = [role.name for role in current_user.roles]
+        print(user_roles)
         for role in require_roles:
             if role in user_roles:
                 return current_user
-        
+
         raise HTTPException(status_code=403, detail="Permission denied")
+
     return role_checker
