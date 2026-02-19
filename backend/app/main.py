@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 # from .database import engine, Base
 from . import models, schemas, crud
 from .auth import create_access_token, verify_password
-from .dependencies import get_db, get_current_user, require_roles
+from .dependencies import get_db, get_current_user, require_roles, oauth2_scheme
+from .crud import blacklist_token
 
 # Base.metadata.create_all(bind=engine)
 app = FastAPI(title="SriCart API")
@@ -52,7 +53,6 @@ def list_users(db: Session=Depends(get_db)):
 def create_role(role: schemas.RoleCreate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     # allow creating roles when no admin user exists (bootstrap). Otherwise require admin.
     admin_user = db.query(models.User).join(models.User.roles).filter(models.Role.name == "admin").first()
-    print(current_user)
     if admin_user:
         # subsequent role creation requires admin
         if not current_user:
@@ -114,3 +114,9 @@ def assign_role(user_id: int,
     db.commit()
 
     return {"message": "Role assigned successfully"}
+
+
+@app.post("/logout")
+def logout(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    blacklist_token(db, token)
+    return {"message": "Successfully logged out"}

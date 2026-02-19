@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from .auth import SECRET_KEY, ALGORITHM
 from jose import JWTError, jwt
 from .models import User
+from .crud import is_token_blacklisted
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -16,12 +17,11 @@ def get_db():
         db.close()
 
 def get_current_user(token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    if not token:
-        return None
+    if is_token_blacklisted(db, token):
+        raise HTTPException(status_code=401, detail="Token has been revoked")
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
-        print(f"Token decoded for user: {username}")
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
@@ -37,7 +37,6 @@ def require_roles(require_roles: list[str]):
             raise HTTPException(status_code=401, detail="Not authenticated")
         
         user_roles = [role.name for role in current_user.roles]
-        print(user_roles)
         for role in require_roles:
             if role in user_roles:
                 return current_user

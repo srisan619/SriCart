@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from .models import User, Role
+from .models import User, Role, BlacklistedToken
 from .auth import hash_password
 
 def create_user(db: Session, user):
@@ -57,3 +57,13 @@ def assign_role_to_user(db, user: User, role: Role):
     db.commit()
     db.refresh(user)
     return user
+
+def blacklist_token(db, token: str):
+    db_token = BlacklistedToken(token=token)
+    db.add(db_token)
+    db.commit()
+    
+def is_token_blacklisted(db, token: str):
+    return db.query(BlacklistedToken).filter(
+        BlacklistedToken.token == token
+    ).first() is not None

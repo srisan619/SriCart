@@ -29,3 +29,8 @@ class User(Base):
 
     # role_id = Column(Integer, ForeignKey("roles.id"))
     roles = relationship("Role", secondary=user_roles, backref="users")
+
+class BlacklistedToken(Base):
+    __tablename__ = "blacklisted_tokens"
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String, unique=True, nullable=False)
