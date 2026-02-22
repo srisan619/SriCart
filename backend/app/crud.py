@@ -18,6 +18,9 @@ def create_user(db: Session, user):
 def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
+def get_user_by_id(db, user_id: str):
+    return db.query(User).filter(User.id==user_id).first()
+
 def get_all_users(db: Session):
     return db.query(User).all()
 
@@ -44,6 +47,15 @@ def update_role(db, role_id: int, new_name: str):
         db.commit()
         db.refresh(role)
     return role
+
+def update_user(db, user_id: int, name: str, email: str):
+    user = get_user_by_id(db, user_id)
+    if user:
+        user.name = name
+        user.email = email
+        db.commit()
+        db.refresh(user)
+    return user
 
 def delete_role(db, role_id: int):
     role = get_role_by_id(db, role_id)

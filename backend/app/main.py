@@ -25,6 +25,7 @@ app.add_middleware(
 
 @app.post("/register", response_model=schemas.UserResponse)
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    # print(current_user.__dict__)
     existing_user = crud.get_user_by_username(db, user.username)
     if existing_user:
         raise HTTPException(status_code=400, detail="username already exists")
@@ -35,6 +36,18 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     crud.assign_role_to_user(db, new_user, default_role)
 
     return new_user
+
+@app.put("/users/{user_id}", response_model=schemas.UserResponse)
+def update_user(user_id: int,
+                user: schemas.UserCreate,
+                db: Session = Depends(get_db),
+                current_user=Depends(require_roles(["admin"]))):
+    
+    updated = crud.update_user(db, user_id, user.name, user.email)
+    if not updated:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return updated
 
 @app.post("/login", response_model=schemas.Token)
 def login(user: schemas.UserLogin, db: Session = Depends(get_db)):

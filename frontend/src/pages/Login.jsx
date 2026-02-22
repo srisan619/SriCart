@@ -20,11 +20,19 @@ function Login(){
     };
 
     return(
-        <div>
-            <h2>Login</h2>
-            <input placeholder="Username" onChange={(e)=> setUsername(e.target.value)} />
-            <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
-            <button onClick={handleLogin}>Login</button>
+        <div className="d-flex align-items-center justify-content-center" style={{minHeight: '72vh'}}>
+            <div style={{width: 360}}>
+                <div className="card shadow p-4">
+                    <h3 className="text-center mb-3">Login</h3>
+                    <div className="mb-2">
+                        <input placeholder="Username" onChange={(e)=> setUsername(e.target.value)} className="form-control" />
+                    </div>
+                    <div className="mb-3">
+                        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} className="form-control"/>
+                    </div>
+                    <button onClick={handleLogin} className="btn btn-primary w-100">Login</button>
+                </div>
+            </div>
         </div>
     )
 }

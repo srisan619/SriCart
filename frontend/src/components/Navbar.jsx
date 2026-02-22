@@ -16,11 +16,22 @@ function Navbar(){
     }
 
     return(
-        <div>
-            <button onClick={()=> navigate("/users")}>Users</button>
-            <button onClick={()=> navigate("/roles")}>Roles</button>
-            <button onClick={handleLogout}>Logout</button>
-        </div>
+        <nav className="navbar-custom">
+            <div className="navbar-container">
+                <div className="navbar-brand">Sri Cart</div>
+                <ul className="navbar-menu">
+                    <li><a href="#" onClick={(e) => { e.preventDefault(); navigate("/dashboard"); }}>Dashboard</a></li>
+                    <li className="dropdown">
+                        <a href="#" className="dropdown-toggle">User Management</a>
+                        <ul className="dropdown-menu">
+                            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate("/users"); }}>Users</a></li>
+                            <li><a href="#" onClick={(e) => { e.preventDefault(); navigate("/roles"); }}>Roles</a></li>
+                        </ul>
+                    </li>                    
+                    <li><a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>Logout</a></li>
+                </ul>
+            </div>
+        </nav>
     )
 }
 
