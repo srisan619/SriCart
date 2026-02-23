@@ -48,11 +48,12 @@ def update_role(db, role_id: int, new_name: str):
         db.refresh(role)
     return role
 
-def update_user(db, user_id: int, name: str, email: str):
+def update_user(db, user_id: int, name: str, email: str, active: bool):
     user = get_user_by_id(db, user_id)
     if user:
         user.name = name
         user.email = email
+        user.active = active
         db.commit()
         db.refresh(user)
     return user

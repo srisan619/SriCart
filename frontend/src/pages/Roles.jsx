@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar"
 
 function Roles(){
     const [roles, setRoles] = useState([])
+    // const [selectedRoles, setSelectedRoles] = useState([]);
     const [name, setName] = useState("")
     const [editingId, setEditingId] = useState(null)
 
@@ -69,10 +70,10 @@ function Roles(){
                     <button onClick={handleSubmit} className="btn-new">
                         {editingId ? "Update Role" : "Create Role"}
                     </button>
-                </div>
+                </div><br/><br/>
 
-                <table className="table">
-                    <thead>
+                <table className="table table-bordered table-striped">
+                    <thead className="table-dark">
                         <tr>
                             <th>Role Name</th>
                             <th>Actions</th>

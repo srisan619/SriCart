@@ -8,9 +8,12 @@ function Users(){
         username: "",
         password: "",
         name: "",
-        email: ""
+        email: "",
+        active: true
     });
     const [editingId, setEditingId] = useState(null);
+    const [roles, setRoles] = useState([]);
+    const [selectedRoles, setSelectedRoles] = useState([]);
 
     const fetchUsers = async () => {
         const token = localStorage.getItem("access_token");
@@ -20,8 +23,14 @@ function Users(){
         setUsers(res.data);
     }
 
+    const fetchRoles = async () => {
+        const res = await API.get("/roles");
+        setRoles(res.data);
+    };
+
     useEffect(()=>{
         fetchUsers();
+        fetchRoles();
     }, []);
 
     const validateForm = () => {
@@ -44,10 +53,20 @@ function Users(){
         const token = localStorage.getItem("access_token");
         if (!validateForm()) return;
         if (editingId){
-            await API.put(`/users/${editingId}`, form, {
+            await API.put(`/users/${editingId}`, {
+                username: form.username,
+                password: form.password,
+                name: form.name,
+                email: form.email,
+                active: form.active
+            }, {
                 headers: {Authorization: `Bearer ${token}`}
             });
-            setEditingId(null)
+            
+            for (const roleId of selectedRoles){
+                await API.post(`/users/${editingId}/assign-role/${roleId}`, {}, {headers: {Authorization: `Bearer ${token}`}});
+            }
+            setEditingId(null);
         }else{
             await API.post("/register", form, {
                 headers: {Authorization: `Bearer ${token}`}
@@ -58,9 +77,24 @@ function Users(){
             username: "",
             password: "",
             name: "",
-            email: ""
+            email: "",
+            active: true
         })
         fetchUsers();
+    }
+
+    
+    // New User Button (Reset Everything)
+    const handleNewUser = () => {
+        setEditingId(null)
+        setForm({
+            username: "",
+            password: "",
+            name: "",
+            email: "",
+            active: true
+        });
+        setSelectedRoles([]);
     }
 
     const handleEdit = (user) => {
@@ -68,9 +102,11 @@ function Users(){
             username: user.username,
             password: "",
             name: user.name,
-            email: user.email
+            email: user.email,
+            active: user.active
         });
         setEditingId(user.id);
+        setSelectedRoles(user.roles.map(r=> r.id))
     }
 
     const handleChange = (e) => {
@@ -88,7 +124,34 @@ function Users(){
                 {!editingId && (<input name ="password" placeholder="Password" value = {form.password} onChange={handleChange} />)}
                 <input name ="name" placeholder="Name" value = {form.name} onChange={handleChange} />
                 <input name ="email" placeholder="Email" value = {form.email} onChange={handleChange} />
-
+                {editingId && <select
+                    name="active"
+                    value={form.active}
+                    onChange={(e) =>
+                        setForm({ ...form, active: e.target.value === "true" })
+                    }
+                >
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>}
+                {editingId && (
+                    <>
+                        <label htmlFor="roles">Roles</label>
+                        <select multiple value={selectedRoles} onChange={(e) => {
+                            const selected = Array.from(
+                                e.target.selectedOptions,
+                                option => parseInt(option.value)
+                            );
+                            setSelectedRoles(selected);
+                        }} >
+                        {roles.map(role=> (
+                            <option key={role.id} value={role.id}>
+                                {role.name}
+                            </option>
+                        ))}
+                        </select>
+                    </>
+                )}
                 <button onClick={handleSubmit}>
                     {editingId ? "Update User" : "Create User"}
                 </button>
@@ -96,9 +159,9 @@ function Users(){
 
             <div className="container-main flex-grow-1">
                 <h2>User List</h2>
-                <button className="btn-new">New</button>
-                <table className="table">
-                    <thead>
+                <button className="btn-new" onClick={handleNewUser}>New User</button>
+                <table className="table table-bordered table-striped">
+                    <thead className="table-dark">
                         <tr>
                             <th>Username</th>
                             <th>Full Name</th>
@@ -116,7 +179,11 @@ function Users(){
                                     <td>{user.name}</td>
                                     <td>{user.email}</td>
                                     <td>{user.role || 'user'}</td>
-                                    <td><span className="status-badge">Active</span></td>
+                                    <td>
+                                         <span className="status-badge">
+                                            {user.active ? "Active" : "Inactive"}
+                                        </span>
+                                    </td>
                                     <td>
                                         <div className="btn-action">
                                             <button className="btn-icon btn-edit" title="Edit" onClick={()=> handleEdit(user)}><i className="bi bi-pencil-square"></i></button>

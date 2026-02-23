@@ -43,7 +43,7 @@ def update_user(user_id: int,
                 db: Session = Depends(get_db),
                 current_user=Depends(require_roles(["admin"]))):
     
-    updated = crud.update_user(db, user_id, user.name, user.email)
+    updated = crud.update_user(db, user_id, user.name, user.email, user.active)
     if not updated:
         raise HTTPException(status_code=404, detail="User not found")
 
