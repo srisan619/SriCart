@@ -134,12 +134,27 @@ def assign_role(user_id: int,
     role = db.query(models.Role).filter(models.Role.id == role_id).first()
 
     if not user or not role:
-        return HTTPException(status_code = 404, detail="User or Role not found")
+        raise HTTPException(status_code = 404, detail="User or Role not found")
 
     user.roles.append(role)
     db.commit()
 
     return {"message": "Role assigned successfully"}
+
+@app.delete("/users/{user_id}/unassign-role/{role_id}")
+def unassign_role(
+    user_id: int,
+    role_id: int,
+    db: Session = Depends(get_db),
+    ):
+    user = db.query(models.User).filter(models.User.id == user_id).first();
+    role = db.query(models.Role).filter(models.Role.id == role_id).first();
+    if role not in user.roles:
+        raise HTTPException(status_code=404, detail="Role not assigned to user")
+    
+    user.roles.remove(role)
+    db.commit()
+    return {"message": "Role unassigned successfully"}
 
 
 @app.post("/logout")

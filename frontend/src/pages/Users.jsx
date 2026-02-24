@@ -109,6 +109,24 @@ function Users(){
         setSelectedRoles(user.roles.map(r=> r.id))
     }
 
+    const handleUnassignRole = async (roleId) => {
+        const token = localStorage.getItem("access_token");
+
+        try{
+            await API.delete(
+                `/users/${editingId}/unassign-role/${roleId}`, {headers: {Authorization: `Bearer ${token}`}}
+            );
+        
+            // Remove from selectedRoles state
+            setSelectedRoles(prev => prev.filter(id=> id!==roleId));
+            // refresh users list
+            fetchUsers();
+        }catch (error){
+            console.log("Error removing role:", error);
+            // alert("Failed to remove role");
+        }
+    }
+
     const handleChange = (e) => {
         setForm({
             ...form,
@@ -150,6 +168,29 @@ function Users(){
                             </option>
                         ))}
                         </select>
+
+                        {/* Assigned Roles List With Remove Button */}
+                        <div style={{marginTop: "10px"}}>
+                            <strong>Assigned Roles:</strong>
+                            {selectedRoles.length === 0 && <p>No roles assigned</p>}
+                            {selectedRoles.map(roleId => {
+                                const role = roles.find(r=> r.id === roleId);
+                                return(
+                                    <div key={roleId} style={{marginBottom: "5px"}}>
+                                        {role?.name}
+                                        <button style={{
+                                            marginLeft: "10px",
+                                            background: "red",
+                                            color: "white",
+                                            border: "none",
+                                            padding: "2px 6px",
+                                            cursor: "pointer"
+                                        }} onClick={ () => handleUnassignRole(roleId)}>✕</button>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        
                     </>
                 )}
                 <button onClick={handleSubmit}>
@@ -178,7 +219,7 @@ function Users(){
                                     <td>{user.username}</td>
                                     <td>{user.name}</td>
                                     <td>{user.email}</td>
-                                    <td>{user.role || 'user'}</td>
+                                    <td>{user.roles ? user.roles.map(r=> r.name).join(", ") : ""}</td>
                                     <td>
                                          <span className="status-badge">
                                             {user.active ? "Active" : "Inactive"}
