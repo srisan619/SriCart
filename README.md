@@ -33,3 +33,5 @@ npm run dev
 
 curl.exe -s -X POST http://127.0.0.1:8000/login -H "Content-Type: application/json" -d "{\`"username\`":\`"admin\`",\`"password\`":\`"admin\`"}"
 {"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3MTk2NjE3Mn0.y3FjP_JEwNd2I0neCjLf4vXQtGXIZYwYHtWXDj_UR2s","token_type":"bearer"}
+
+curl.exe -X POST "http://127.0.0.1:8000/users/4/assign-role/1" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc3MTk2NjQ3MH0.5TzTVsNgoHknXstNPAJoYto6_-ri1PWv3OBSbYHlS50"
