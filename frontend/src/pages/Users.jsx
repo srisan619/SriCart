@@ -154,97 +154,127 @@ function Users() {
     return (
         <div className="d-flex flex-column min-vh-100">
             <Navbar />
-            <div className="container-main flex-grow-1">
-                {/* Input Fields */}
-                <input name="username" placeholder="Username" value={form.username} onChange={handleChange} disabled={editingId !== null} />
-                {!editingId && (<input name="password" placeholder="Password" value={form.password} onChange={handleChange} />)}
-                <input name="name" placeholder="Name" value={form.name} onChange={handleChange} />
-                <input name="email" placeholder="Email" value={form.email} onChange={handleChange} />
-                
-                {/* Status Dropdown: Only visible when editing */}
-                {editingId && (
-                    <select name="active" value={form.active} onChange={(e) => setForm({ ...form, active: e.target.value === "true" })}>
-                        <option value="true">Active</option>
-                        <option value="false">Inactive</option>
-                    </select>
-                )}
-
-                {/* Role Multi-Select: Only visible when editing */}
-                {editingId && (
-                    <>
-                        <label htmlFor="roles">Roles</label>
-                        <select multiple value={selectedRoles} onChange={(e) => {
-                            // Converts multiple selected options into an array of integers (IDs)
-                            const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
-                            setSelectedRoles(selected);
-                        }}>
-                            {roles.map(role => (
-                                <option key={role.id} value={role.id}>{role.name}</option>
-                            ))}
-                        </select>
-
-                        {/* List of current roles with a delete button (X) */}
-                        <div style={{ marginTop: "10px" }}>
-                            <strong>Assigned Roles:</strong>
-                            {selectedRoles.length === 0 && <p>No roles assigned</p>}
-                            {selectedRoles.map(roleId => {
-                                const role = roles.find(r => r.id === roleId); // Find the role name from the ID
-                                return (
-                                    <div key={roleId} style={{ marginBottom: "5px" }}>
-                                        {role?.name} 
-                                        <button style={{ marginLeft: "10px", background: "red", color: "white", border: "none", cursor: "pointer" }} 
-                                                onClick={() => handleUnassignRole(roleId)}>✕</button>
-                                    </div>
-                                )
-                            })}
+            <div className="container mt-4">
+                <div className="card shadow-sm">
+                    {/* Input Fields */}
+                    <div className="card-body">
+                        <div className="row g-3">
+                            <div className="col-md-4">
+                                <label className="form-label">Username</label>
+                                <input className="form-control" name="username" placeholder="Username" value={form.username} onChange={handleChange} disabled={editingId !== null} />
+                            </div>
+                    {!editingId && (
+                        <div className="col-md-4">
+                            <label className="form-label">Password</label>
+                            <input className="form-control" name="password" placeholder="Password" value={form.password} onChange={handleChange} />
                         </div>
-                    </>
-                )}
+                        )}
+                    <div className="col-md-4">
+                        <label className="form-label">Full Name</label>
+                        <input className="form-control" name="name" placeholder="Name" value={form.name} onChange={handleChange} />
+                    </div>
+                    <div className="col-md-4">
+                        <label className="form-label">Email address</label>
+                        <input className="form-control" name="email" placeholder="Email" value={form.email} onChange={handleChange} />
+                    </div>
+                    
+                    {/* Status Dropdown: Only visible when editing */}
+                    {editingId && (
+                        <div className="col-md-4">
+                            <label className="form-label">Status</label>
+                            <select className="form-select" name="active" value={form.active} onChange={(e) => setForm({ ...form, active: e.target.value === "true" })}>
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    )}
 
-                {/* Submit Button: Text changes based on mode */}
-                <button onClick={handleSubmit}>
-                    {editingId ? "Update User" : "Create User"}
-                </button>
+                    {/* Role Multi-Select: Only visible when editing */}
+                    {editingId && (
+                        <div className="col-md-8">
+                            <label className="form-label" htmlFor="roles">Assign Roles</label>
+                            <select className="form-select" multiple value={selectedRoles} onChange={(e) => {
+                                // Converts multiple selected options into an array of integers (IDs)
+                                const selected = Array.from(e.target.selectedOptions, option => parseInt(option.value));
+                                setSelectedRoles(selected);
+                            }}>
+                                {roles.map(role => (
+                                    <option key={role.id} value={role.id}>{role.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    {/* List of current roles with a delete button (X) */}
+                    {editingId && (
+                        <div className="col-md-12 mt-2">
+                            <label className="form-label" htmlFor="roles">Assign Roles</label>
+                            <div>
+                                {selectedRoles.length === 0 && <p>No roles assigned</p>}
+                                {selectedRoles.map(roleId => {
+                                    const role = roles.find(r => r.id === roleId); // Find the role name from the ID
+                                    return (
+                                        <span key={roleId} className="badge bg-primary me-2 mb-2" style={{ fontSize: "0.9rem" }} >
+                                            {role?.name}
+                                            <button  type="button" className="btn-close btn-close-white ms-2" style={{ fontSize: "0.6rem" }} onClick={() => handleUnassignRole(roleId)} ></button>
+                                        </span>
+                                    )
+                                })}
+                            </div>
+                        </div>                        
+                    )}
+
+                    {/* Submit Button: Text changes based on mode */}
+                    <div className="col-md-12 mt-2">
+                        <button className="btn btn-success" onClick={handleSubmit}>
+                            {editingId ? "Update User" : "Create User"}
+                        </button>
+                    </div>
+                </div>
+                </div>
+                </div>
             </div>
 
             {/* THE USER LIST TABLE */}
             <div className="container-main flex-grow-1">
                 <h2>User List</h2>
-                <button className="btn-new" onClick={handleNewUser}>New User</button>
-                <table className="table table-bordered table-striped">
-                    <thead className="table-dark">
-                        <tr>
-                            <th>Username</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Roles</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map((user) => (
-                            <tr key={user.id}>
-                                <td>{user.username}</td>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
-                                {/* Join multiple role names into a single string separated by commas */}
-                                <td>{user.roles ? user.roles.map(r => r.name).join(", ") : ""}</td>
-                                <td>
-                                    <span className="status-badge">{user.active ? "Active" : "Inactive"}</span>
-                                </td>
-                                <td>
-                                    {/* Action Buttons */}
-                                    <div className="btn-action">
-                                        <button className="btn-icon btn-edit" title="Edit" onClick={() => handleEdit(user)}>
-                                            <i className="bi bi-pencil-square"></i>
-                                        </button>
-                                    </div>
-                                </td>
+                <button className="btn btn-primary" onClick={handleNewUser}>New User</button>
+                <div className="card-body table-responsive">
+                    <table className="table table-bordered table-striped">
+                        <thead className="table-dark">
+                            <tr>
+                                <th>Username</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Roles</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {users.map((user) => (
+                                <tr key={user.id}>
+                                    <td>{user.username}</td>
+                                    <td>{user.name}</td>
+                                    <td>{user.email}</td>
+                                    {/* Join multiple role names into a single string separated by commas */}
+                                    <td>{user.roles ? user.roles.map(r => r.name).join(", ") : ""}</td>
+                                    <td>
+                                        <span className="status-badge">{user.active ? "Active" : "Inactive"}</span>
+                                    </td>
+                                    <td>
+                                        {/* Action Buttons */}
+                                        <div className="btn-action">
+                                            <button className="btn-icon btn-edit" title="Edit" onClick={() => handleEdit(user)}>
+                                                <i className="bi bi-pencil-square"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     )
