@@ -1,6 +1,9 @@
+from .product import *
+from .product_type import *
+
 from sqlalchemy.orm import Session
-from .models import User, Role, BlacklistedToken
-from .auth import hash_password
+from app.models import User, Role, BlacklistedToken
+from app.auth import hash_password
 
 def create_user(db: Session, user):
     db_user = User(

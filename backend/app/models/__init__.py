@@ -1,9 +1,13 @@
-from .database import Base
+from .product import Product
+from .product_type import ProductType
+
+# legacy models from the former app/models.py moved here
+from app.database import Base
 from sqlalchemy import *
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
-#association table
+# association table for users and roles
 user_roles = Table(
     "user_roles",
     Base.metadata,

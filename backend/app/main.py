@@ -6,9 +6,14 @@ from .auth import create_access_token, verify_password
 from .dependencies import get_db, get_current_user, require_roles, oauth2_scheme
 from .crud import blacklist_token
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers import product, product_type
+from fastapi.staticfiles import StaticFiles
 
 # Base.metadata.create_all(bind=engine)
 app = FastAPI(title="SriCart API")
+app.include_router(product.router)
+app.include_router(product_type.router)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 origins = [
     "http://localhost:5173",

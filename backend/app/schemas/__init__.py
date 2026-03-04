@@ -1,3 +1,6 @@
+from .product import ProductBase,ProductCreate,ProductUpdate,ProductResponse
+from .product_type import ProductTypeBase,ProductTypeCreate,ProductTypeResponse
+
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
