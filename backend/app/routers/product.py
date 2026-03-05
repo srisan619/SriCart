@@ -38,7 +38,8 @@ def create_product(
         price=price
     )
 
-    return  crud_product.create_product(db, product_data, image_name)
+    product = crud_product.create_product(db, product_data, image_name)
+    return product
 
 @router.get("/", response_model=list[ProductResponse])
 def get_products(db: Session=Depends(get_db)):

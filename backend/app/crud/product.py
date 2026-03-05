@@ -15,6 +15,7 @@ def create_product(db: Session, product_data: ProductCreate, image_name: str | N
     db.add(product)
     db.commit()
     db.refresh(product)
+    return product
 
 def get_products(db: Session):
     return db.query(Product).all()
