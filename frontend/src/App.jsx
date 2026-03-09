@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Roles from './pages/Roles'
 import Users from './pages/Users'
+import Products from './pages/Products'
 
 function App() {
   
@@ -14,6 +15,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard/>} />
         <Route path="/users" element={<Users/>} />
         <Route path='/roles' element={<Roles/>} />
+        <Route path="/products" element={<Products/>} />
       </Routes>
     </BrowserRouter>
   );

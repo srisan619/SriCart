@@ -13,7 +13,7 @@ router = APIRouter(prefix="/products", tags=["Products"])
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@router.post("/", response_model=ProductResponse)
+@router.post("", response_model=ProductResponse)
 def create_product(
     name: str = Form(...),
     description: str = Form(None),
@@ -41,7 +41,7 @@ def create_product(
     product = crud_product.create_product(db, product_data, image_name)
     return product
 
-@router.get("/", response_model=list[ProductResponse])
+@router.get("", response_model=list[ProductResponse])
 def get_products(db: Session=Depends(get_db)):
     return crud_product.get_products(db)
 
